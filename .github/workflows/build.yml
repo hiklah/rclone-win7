@@ -20,7 +20,7 @@ jobs:
         run: |
           git clone --branch $TAG --depth 1 https://github.com/rclone/rclone.git
 
-      - name: Download go-legacy-win7 (linux-amd64)
+      - name: Download go-legacy-win7 (linux_amd64)
         run: |
           curl -sSL https://api.github.com/repos/thongtech/go-legacy-win7/releases/latest \
           | jq -r '.assets[] | select(.name | test("linux_amd64.*tar.gz")) | .browser_download_url' > go_url.txt
@@ -28,19 +28,18 @@ jobs:
           mkdir go-legacy
           curl -L "$GO_URL" -o go.tar.gz
           tar -zxf go.tar.gz -C go-legacy --strip-components=1
-          echo "$(pwd)/go-legacy/bin" >> $GITHUB_PATH
 
       - name: Build rclone for amd64
         run: |
           mkdir -p amd64
           cd rclone
-          GOOS=windows GOARCH=amd64 go build -o ../amd64/rclone-win7.exe
+          GOOS=windows GOARCH=amd64 ../go-legacy/bin/go build -o ../amd64/rclone-win7.exe
 
       - name: Build rclone for 386
         run: |
           mkdir -p 386
           cd rclone
-          GOOS=windows GOARCH=386 go build -o ../386/rclone-win7.exe
+          GOOS=windows GOARCH=386 ../go-legacy/bin/go build -o ../386/rclone-win7.exe
 
       - name: Zip builds
         run: |
