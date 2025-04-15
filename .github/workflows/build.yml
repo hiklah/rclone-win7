@@ -23,7 +23,7 @@ jobs:
       - name: Download go-legacy-win7 (linux-amd64)
         run: |
           curl -sSL https://api.github.com/repos/thongtech/go-legacy-win7/releases/latest \
-          | jq -r '.assets[] | select(.name | test("linux-amd64.*tar.gz")) | .browser_download_url' > go_url.txt
+          | jq -r '.assets[] | select(.name | test("linux_amd64.*tar.gz")) | .browser_download_url' > go_url.txt
           GO_URL=$(cat go_url.txt)
           mkdir go-legacy
           curl -L "$GO_URL" -o go.tar.gz
