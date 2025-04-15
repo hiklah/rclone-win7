@@ -32,13 +32,13 @@ jobs:
         run: |
           mkdir -p amd64
           cd rclone
-          GOOS=windows GOARCH=amd64 ../go-legacy-win7/bin/go build -o ../amd64/rclone-win7.exe
+          GOOS=windows GOARCH=amd64 ../go-legacy-win7/bin/go build -trimpath -ldflags -s -tags cmount -o ../amd64/rclone-win7.exe
 
       - name: Build rclone for 386
         run: |
           mkdir -p 386
           cd rclone
-          GOOS=windows GOARCH=386 ../go-legacy-win7/bin/go build -o ../386/rclone-win7.exe
+          GOOS=windows GOARCH=386 ../go-legacy-win7/bin/go build -trimpath -ldflags -s -tags cmount -o ../386/rclone-win7.exe
 
       - name: Zip builds
         run: |
