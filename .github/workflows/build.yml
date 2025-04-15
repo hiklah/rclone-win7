@@ -1,0 +1,67 @@
+name: Build Rclone for Win7
+
+on:
+  repository_dispatch:
+    types: [rclone-new-release]
+
+jobs:
+  build-and-release:
+    runs-on: ubuntu-latest
+
+    env:
+      TAG: ${{ github.event.client_payload.tag }}
+
+    steps:
+      - name: Check tag
+        run: |
+          echo "Building rclone for tag: $TAG"
+
+      - name: Clone rclone source
+        run: |
+          git clone --branch $TAG --depth 1 https://github.com/rclone/rclone.git
+
+      - name: Download go-legacy-win7 (linux-amd64)
+        run: |
+          curl -sSL https://api.github.com/repos/thongtech/go-legacy-win7/releases/latest \
+          | jq -r '.assets[] | select(.name | test("linux-amd64.*tar.gz")) | .browser_download_url' > go_url.txt
+          GO_URL=$(cat go_url.txt)
+          mkdir go-legacy
+          curl -L "$GO_URL" -o go.tar.gz
+          tar -zxf go.tar.gz -C go-legacy --strip-components=1
+          echo "$(pwd)/go-legacy/bin" >> $GITHUB_PATH
+
+      - name: Build rclone for amd64
+        run: |
+          mkdir -p amd64
+          cd rclone
+          GOOS=windows GOARCH=amd64 go build -o ../amd64/rclone-win7.exe
+
+      - name: Build rclone for 386
+        run: |
+          mkdir -p 386
+          cd rclone
+          GOOS=windows GOARCH=386 go build -o ../386/rclone-win7.exe
+
+      - name: Zip builds
+        run: |
+          zip -j rclone-${TAG}-win7-amd64.zip amd64/rclone-win7.exe
+          zip -j rclone-${TAG}-win7-386.zip 386/rclone-win7.exe
+
+      - name: Create GitHub Release (if not exists)
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ env.TAG }}
+          name: rclone-win7 ${{ env.TAG }}
+          generate_release_notes: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload assets to Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ env.TAG }}
+          files: |
+            rclone-${{ env.TAG }}-win7-amd64.zip
+            rclone-${{ env.TAG }}-win7-386.zip
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
