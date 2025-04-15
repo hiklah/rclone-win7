@@ -47,14 +47,11 @@ jobs:
           zip -j rclone-${TAG}-win7-amd64.zip amd64/rclone-win7.exe
           zip -j rclone-${TAG}-win7-386.zip 386/rclone-win7.exe
 
-      - name: Create GitHub Release (if not exists)
+      - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ env.TAG }}
           name: rclone-win7 ${{ env.TAG }}
-          generate_release_notes: true
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Upload assets to Release
         uses: softprops/action-gh-release@v2
@@ -63,5 +60,3 @@ jobs:
           files: |
             rclone-${{ env.TAG }}-win7-amd64.zip
             rclone-${{ env.TAG }}-win7-386.zip
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
